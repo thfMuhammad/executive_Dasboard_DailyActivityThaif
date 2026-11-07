@@ -1,0 +1,1794 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Master Executive & Development Dashboard (2026–2028)</title>
+
+  <!-- PWA & Mobile Home Screen Meta Tags -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Executive Hub">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#0b1120">
+  <link rel="apple-touch-icon" href="https://placehold.co/192x192/2563eb/ffffff?text=EXEC">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eff6ff',
+              100: '#dbeafe',
+              500: '#2563eb',
+              600: '#1d4ed8',
+              700: '#1e40af',
+              800: '#1e3a8a',
+              900: '#172554'
+            },
+            darkBg: '#0b1120',
+            darkCard: '#151e32',
+            darkCardLighter: '#1f2b45',
+            darkBorder: '#23324d'
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Font Awesome CDN -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+
+  <style>
+    /* Custom Scrollbar for Smooth Table Navigation */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #3b4e70; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #526c9a; }
+  </style>
+</head>
+
+<body class="bg-slate-50 dark:bg-darkBg text-slate-800 dark:text-slate-100 transition-colors duration-200 min-h-screen flex flex-col font-sans antialiased">
+
+  <!-- ==================== 1. HEADER & GLOBAL CONTROLS ==================== -->
+  <header class="sticky top-0 z-40 bg-white/95 dark:bg-darkCard/95 backdrop-blur-md border-b border-slate-200 dark:border-darkBorder px-4 sm:px-6 py-3.5 transition-colors shadow-sm">
+    <div class="max-w-7xl mx-auto flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+      <div>
+        <div class="flex items-center gap-2.5">
+          <span class="inline-flex items-center justify-center p-2.5 bg-blue-600 text-white rounded-xl shadow-md">
+            <i class="fa-solid fa-chart-line text-lg"></i>
+          </span>
+          <div>
+            <h1 class="text-xl sm:text-2xl font-black tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
+              Master Executive & Development Dashboard
+              <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300">2026–2028</span>
+            </h1>
+            <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
+              Supervisor Maintenance • Non-Shift (08:00–16:00 WIB) • Target Karier & Finansial Usia 27
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sync Controls & Actions -->
+      <div class="flex flex-wrap items-center gap-2">
+        <!-- Status Indicator -->
+        <div id="syncStatus" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border border-amber-300 dark:border-amber-800/80 shadow-xs">
+          <span class="h-2 w-2 rounded-full bg-amber-500 animate-pulse"></span>
+          <span>Offline Fallback</span>
+        </div>
+
+        <!-- Sync Button -->
+        <button id="btnSync" onclick="fetchLiveSheetsData()" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-sm transition transform active:scale-95">
+          <i class="fa-solid fa-rotate"></i>
+          <span>Tarik Data Sheets</span>
+        </button>
+
+        <!-- Setup URL Button -->
+        <button onclick="toggleModal('setupModal', true)" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-slate-200 dark:bg-darkCardLighter hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-lg transition border border-slate-300 dark:border-slate-700">
+          <i class="fa-solid fa-gear"></i>
+          <span>Setup URL</span>
+        </button>
+
+        <!-- Google Sheet Link -->
+        <a id="sheetLink" href="https://docs.google.com/spreadsheets/" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg shadow-sm transition" title="Buka Spreadsheet Sumber">
+          <i class="fa-solid fa-arrow-up-right-from-square"></i>
+          <span>Buka Sheets</span>
+        </a>
+
+        <!-- Quick 60-Sec Check-in Modal Button -->
+        <button onclick="toggleModal('entryModal', true)" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow-sm transition">
+          <i class="fa-solid fa-plus"></i>
+          <span>Input 60 Detik</span>
+        </button>
+
+        <!-- Master Data Manager Button -->
+        <button onclick="toggleModal('masterDataModal', true)" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold bg-slate-800 dark:bg-slate-700 hover:bg-slate-900 text-slate-100 rounded-lg shadow-sm transition border border-slate-700" title="Kelola, Edit Massal, & Reset Data Mentah">
+          <i class="fa-solid fa-database text-amber-400"></i>
+          <span>Master Data</span>
+        </button>
+
+        <!-- Dark Mode Toggle -->
+        <button onclick="toggleDarkMode()" class="p-2 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 bg-slate-100 dark:bg-darkCardLighter rounded-lg border border-slate-200 dark:border-slate-700 transition" aria-label="Toggle Dark Mode">
+          <i id="themeIcon" class="fa-solid fa-sun"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Main Navigation Tabs -->
+    <div class="max-w-7xl mx-auto mt-3 border-t border-slate-200/60 dark:border-darkBorder pt-2 flex gap-4">
+      <button id="tabBtnActivities" onclick="switchTab('activities')" class="px-4 py-2 text-sm font-bold border-b-2 border-blue-600 text-blue-600 dark:text-blue-400 transition flex items-center gap-2">
+        <i class="fa-solid fa-list-check"></i> Monitoring Kegiatan & Habit
+      </button>
+      <button id="tabBtnBudgeting" onclick="switchTab('budgeting')" class="px-4 py-2 text-sm font-bold border-b-2 border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 transition flex items-center gap-2">
+        <i class="fa-solid fa-wallet"></i> Monitoring Budgeting & Dana Darurat
+      </button>
+    </div>
+  </header>
+
+  <!-- ==================== MAIN CONTENT CONTAINER ==================== -->
+  <main class="max-w-7xl mx-auto p-4 sm:p-6 w-full flex-1">
+
+    <!-- #################### TAB 1: MONITORING KEGIATAN & HABIT #################### -->
+    <div id="tabActivities" class="space-y-6">
+
+      <!-- A. MASTER SCHEDULE DAILY (TIME-BLOCK 24 JAM NON-SHIFT) -->
+      <section class="bg-white dark:bg-darkCard rounded-xl p-5 border border-slate-200 dark:border-darkBorder shadow-sm">
+        <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-100 dark:border-slate-800">
+          <div>
+            <h2 class="text-base sm:text-lg font-bold flex items-center gap-2">
+              <i class="fa-regular fa-clock text-blue-500"></i> Master Schedule Daily (Non-Shift 08:00–16:00 WIB)
+            </h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Jangkar arsitektur waktu harian untuk optimalisasi fokus, pemulihan fisik, dan akselerasi kompetensi teknis.</p>
+          </div>
+          <span class="text-xs bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 font-semibold px-2.5 py-1 rounded-md border border-blue-200 dark:border-blue-800">Baku 24-Jam</span>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
+          <div class="p-3 rounded-lg bg-slate-50 dark:bg-darkCardLighter/70 border-l-4 border-emerald-500 shadow-2xs">
+            <span class="font-bold text-slate-800 dark:text-slate-200">04:30–05:15</span>
+            <p class="text-slate-600 dark:text-slate-400 mt-0.5">Bangun & Shalat Subuh (Jangkar biologis & spiritual)</p>
+          </div>
+          <div class="p-3 rounded-lg bg-slate-50 dark:bg-darkCardLighter/70 border-l-4 border-blue-500 shadow-2xs">
+            <span class="font-bold text-slate-800 dark:text-slate-200">05:15–06:15</span>
+            <p class="text-slate-600 dark:text-slate-400 mt-0.5">Morning Routine: English Practice & Baca Buku</p>
+          </div>
+          <div class="p-3 rounded-lg bg-slate-50 dark:bg-darkCardLighter/70 border-l-4 border-amber-500 shadow-2xs">
+            <span class="font-bold text-slate-800 dark:text-slate-200">06:15–07:30</span>
+            <p class="text-slate-600 dark:text-slate-400 mt-0.5">Sarapan Tinggi Protein & Skincare Pagi</p>
+          </div>
+          <div class="p-3 rounded-lg bg-slate-50 dark:bg-darkCardLighter/70 border-l-4 border-slate-500 shadow-2xs">
+            <span class="font-bold text-slate-800 dark:text-slate-200">07:30–08:00</span>
+            <p class="text-slate-600 dark:text-slate-400 mt-0.5">Komuter ke Pabrik (Audio teknis / podcast)</p>
+          </div>
+          <div class="p-3 rounded-lg bg-slate-50 dark:bg-darkCardLighter/70 border-l-4 border-indigo-500 shadow-2xs">
+            <span class="font-bold text-slate-800 dark:text-slate-200">08:00–11:45</span>
+            <p class="text-slate-600 dark:text-slate-400 mt-0.5">Supervisi Blok 1 (Briefing, patroli lini, verifikasi breakdown)</p>
+          </div>
+          <div class="p-3 rounded-lg bg-slate-50 dark:bg-darkCardLighter/70 border-l-4 border-emerald-500 shadow-2xs">
+            <span class="font-bold text-slate-800 dark:text-slate-200">11:45–13:00</span>
+            <p class="text-slate-600 dark:text-slate-400 mt-0.5">Shalat Dzuhur, Makan Siang Protein, Power Nap 15m</p>
+          </div>
+          <div class="p-3 rounded-lg bg-slate-50 dark:bg-darkCardLighter/70 border-l-4 border-indigo-500 shadow-2xs">
+            <span class="font-bold text-slate-800 dark:text-slate-200">13:00–16:00</span>
+            <p class="text-slate-600 dark:text-slate-400 mt-0.5">Supervisi Blok 2 (Preventive Maintenance, OEE, WO)</p>
+          </div>
+          <div class="p-3 rounded-lg bg-slate-50 dark:bg-darkCardLighter/70 border-l-4 border-teal-500 shadow-2xs">
+            <span class="font-bold text-slate-800 dark:text-slate-200">16:00–16:45</span>
+            <p class="text-slate-600 dark:text-slate-400 mt-0.5">Shalat Ashar & Evaluasi Handover Shift</p>
+          </div>
+          <div class="p-3 rounded-lg bg-slate-50 dark:bg-darkCardLighter/70 border-l-4 border-rose-500 shadow-2xs">
+            <span class="font-bold text-slate-800 dark:text-slate-200">17:30–19:00</span>
+            <p class="text-slate-600 dark:text-slate-400 mt-0.5">Sesi Gym 60 Menit (Target 4x/pekan: Push/Pull/Legs/Upper)</p>
+          </div>
+          <div class="p-3 rounded-lg bg-slate-50 dark:bg-darkCardLighter/70 border-l-4 border-amber-500 shadow-2xs">
+            <span class="font-bold text-slate-800 dark:text-slate-200">19:00–20:00</span>
+            <p class="text-slate-600 dark:text-slate-400 mt-0.5">Shalat Maghrib & Isya, Dinner Protein, Skincare</p>
+          </div>
+          <div class="p-3 rounded-lg bg-slate-50 dark:bg-darkCardLighter/70 border-l-4 border-cyan-500 shadow-2xs">
+            <span class="font-bold text-slate-800 dark:text-slate-200">20:00–21:15</span>
+            <p class="text-slate-600 dark:text-slate-400 mt-0.5">Deep Work Teknis (Node-RED, Modbus TCP, SCADA, TPM)</p>
+          </div>
+          <div class="p-3 rounded-lg bg-slate-50 dark:bg-darkCardLighter/70 border-l-4 border-purple-500 shadow-2xs">
+            <span class="font-bold text-slate-800 dark:text-slate-200">21:15–21:30</span>
+            <p class="text-slate-600 dark:text-slate-400 mt-0.5">Google Tasks 21:30 (Checklist log harian & catat kas)</p>
+          </div>
+          <div class="p-3 rounded-lg bg-slate-50 dark:bg-darkCardLighter/70 border-l-4 border-slate-400 md:col-span-2 lg:col-span-2 shadow-2xs">
+            <span class="font-bold text-slate-800 dark:text-slate-200">21:30–22:15</span>
+            <p class="text-slate-600 dark:text-slate-400 mt-0.5">Winding Down (Relaksasi pikiran, matikan layar gawai)</p>
+          </div>
+          <div class="p-3 rounded-lg bg-slate-50 dark:bg-darkCardLighter/70 border-l-4 border-indigo-700 md:col-span-2 lg:col-span-2 shadow-2xs">
+            <span class="font-bold text-slate-800 dark:text-slate-200">22:15–04:30</span>
+            <p class="text-slate-600 dark:text-slate-400 mt-0.5">Deep Sleep 6.5–7.0 Jam (Pemulihan otot & kesiapan kerja)</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- B. 4 KARTU KPI KEGIATAN -->
+      <section class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-white dark:bg-darkCard p-4 rounded-xl border border-slate-200 dark:border-darkBorder shadow-sm">
+          <div class="flex items-center justify-between text-slate-500 text-xs font-semibold">
+            <span>Kepatuhan Shalat 5 Waktu</span>
+            <i class="fa-solid fa-mosque text-emerald-500 text-sm"></i>
+          </div>
+          <p id="kpiShalat" class="text-2xl sm:text-3xl font-black mt-2 text-slate-900 dark:text-white">--%</p>
+          <span class="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">Jangkar Spiritual Konsisten</span>
+        </div>
+
+        <div class="bg-white dark:bg-darkCard p-4 rounded-xl border border-slate-200 dark:border-darkBorder shadow-sm">
+          <div class="flex items-center justify-between text-slate-500 text-xs font-semibold">
+            <span>Frekuensi Sesi Gym</span>
+            <i class="fa-solid fa-dumbbell text-rose-500 text-sm"></i>
+          </div>
+          <p id="kpiGym" class="text-2xl sm:text-3xl font-black mt-2 text-slate-900 dark:text-white">- / 4x</p>
+          <span class="text-[11px] text-slate-500 font-medium">Target 4x per pekan (PPL)</span>
+        </div>
+
+        <div class="bg-white dark:bg-darkCard p-4 rounded-xl border border-slate-200 dark:border-darkBorder shadow-sm">
+          <div class="flex items-center justify-between text-slate-500 text-xs font-semibold">
+            <span>Akumulasi Deep Work</span>
+            <i class="fa-solid fa-laptop-code text-cyan-500 text-sm"></i>
+          </div>
+          <p id="kpiDeepWork" class="text-2xl sm:text-3xl font-black mt-2 text-cyan-600 dark:text-cyan-400">- Jam</p>
+          <span class="text-[11px] text-slate-500 font-medium">Otomasi, SCADA & TPM</span>
+        </div>
+
+        <div class="bg-white dark:bg-darkCard p-4 rounded-xl border border-slate-200 dark:border-darkBorder shadow-sm">
+          <div class="flex items-center justify-between text-slate-500 text-xs font-semibold">
+            <span>Rata-rata Tidur Harian</span>
+            <i class="fa-solid fa-bed text-indigo-500 text-sm"></i>
+          </div>
+          <p id="kpiSleep" class="text-2xl sm:text-3xl font-black mt-2 text-slate-900 dark:text-white">- Jam</p>
+          <span class="text-[11px] text-indigo-600 dark:text-indigo-400 font-medium">Koridor Aman: 6.5–7.5 Jam</span>
+        </div>
+      </section>
+
+      <!-- C. INTERACTIVE SLICER / FILTER -->
+      <section class="bg-white dark:bg-darkCard p-3.5 rounded-xl border border-slate-200 dark:border-darkBorder shadow-sm flex flex-wrap items-center justify-between gap-3 text-xs">
+        <div class="flex flex-wrap items-center gap-3">
+          <div class="flex items-center gap-2">
+            <span class="font-bold text-slate-600 dark:text-slate-300">Filter Status:</span>
+            <select id="filterStatusKerja" onchange="applyActivityFilters()" class="bg-slate-100 dark:bg-darkCardLighter border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <option value="Semua">Semua Status</option>
+              <option value="Normal 08-16">Normal 08-16</option>
+              <option value="Lembur">Lembur</option>
+              <option value="Libur">Libur</option>
+            </select>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="font-bold text-slate-600 dark:text-slate-300">Filter Kendala (RCA):</span>
+            <select id="filterKendala" onchange="applyActivityFilters()" class="bg-slate-100 dark:bg-darkCardLighter border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <option value="Semua">Semua Kendala</option>
+              <option value="Lembur/Pabrik">Lembur / Pabrik</option>
+              <option value="Kelelahan">Kelelahan</option>
+              <option value="Distraksi Pribadi">Distraksi Pribadi</option>
+              <option value="Nihil">Nihil / Lancar</option>
+            </select>
+          </div>
+        </div>
+        <button onclick="resetActivityFilters()" class="text-xs text-blue-600 dark:text-blue-400 hover:underline font-medium">
+          <i class="fa-solid fa-arrows-rotate mr-1"></i> Reset Filter
+        </button>
+      </section>
+
+      <!-- D. VISUALISASI GRAFIK INTERAKTIF (CHART.JS) -->
+      <section class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        <!-- Bar Chart: Deep Work vs English -->
+        <div class="bg-white dark:bg-darkCard p-4 rounded-xl border border-slate-200 dark:border-darkBorder shadow-sm lg:col-span-2">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="text-sm font-bold flex items-center gap-2">
+              <i class="fa-solid fa-chart-column text-blue-500"></i> Produktivitas: Deep Work Teknis vs English (Menit)
+            </h3>
+            <span class="text-[11px] text-slate-400">Target Deep Work: ≥60m/hr</span>
+          </div>
+          <div class="h-64">
+            <canvas id="chartProductivity"></canvas>
+          </div>
+        </div>
+
+        <!-- Doughnut Chart: RCA -->
+        <div class="bg-white dark:bg-darkCard p-4 rounded-xl border border-slate-200 dark:border-darkBorder shadow-sm">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="text-sm font-bold flex items-center gap-2">
+              <i class="fa-solid fa-chart-pie text-indigo-500"></i> Analisis Akar Masalah (RCA)
+            </h3>
+            <span class="text-[11px] text-slate-400">Distribusi Hambatan</span>
+          </div>
+          <div class="h-64 flex items-center justify-center">
+            <canvas id="chartRCA"></canvas>
+          </div>
+        </div>
+
+        <!-- Line Chart: Durasi Tidur -->
+        <div class="bg-white dark:bg-darkCard p-4 rounded-xl border border-slate-200 dark:border-darkBorder shadow-sm lg:col-span-3">
+          <div class="flex items-center justify-between mb-2">
+            <h3 class="text-sm font-bold flex items-center gap-2">
+              <i class="fa-solid fa-chart-line text-indigo-500"></i> Tren Durasi Tidur Harian & Koridor Pemulihan
+            </h3>
+            <span class="text-[11px] text-emerald-500 font-semibold">Koridor Aman: 6.5–7.5 Jam</span>
+          </div>
+          <div class="h-60">
+            <canvas id="chartSleep"></canvas>
+          </div>
+        </div>
+      </section>
+
+      <!-- E. AI INSIGHTS BOX -->
+      <section class="bg-gradient-to-r from-blue-900/10 via-slate-900/10 to-indigo-900/10 dark:from-blue-950/40 dark:via-darkCard dark:to-indigo-950/40 rounded-xl p-5 border border-blue-200 dark:border-blue-900/50 shadow-sm">
+        <div class="flex items-center gap-2 mb-2 text-blue-600 dark:text-blue-400 font-bold text-sm">
+          <i class="fa-solid fa-brain text-base"></i>
+          <span>Executive Systems Insight & Root Cause Differentiation</span>
+        </div>
+        <p id="aiInsightText" class="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+          Menganalisis korelasi beban lini pabrik dan kedisiplinan habit pribadi...
+        </p>
+      </section>
+
+      <!-- F. TABEL LOG HARIAN (CHECKLIST 60 DETIK) -->
+      <section class="bg-white dark:bg-darkCard rounded-xl border border-slate-200 dark:border-darkBorder shadow-sm overflow-hidden">
+        <div class="p-4 border-b border-slate-100 dark:border-slate-800 flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <h3 class="text-sm font-bold">Log Harian Terkini (Synced with Google Tasks 21:30)</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Pencatatan cepat harian 60 detik sebelum relaksasi malam. Klik ikon pensil untuk merevisi data.</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-xs text-slate-400">Dapat diedit & tersinkronisasi</span>
+            <button onclick="openAddBudgetModal()" class="hidden"></button>
+          </div>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr class="bg-slate-100/70 dark:bg-darkCardLighter text-slate-600 dark:text-slate-300 border-b border-slate-200 dark:border-slate-700 font-bold">
+                <th class="p-3">Tanggal</th>
+                <th class="p-3">Status</th>
+                <th class="p-3 text-center">Shalat (S/D/A/M/I)</th>
+                <th class="p-3 text-center">Gym</th>
+                <th class="p-3">Tidur (J)</th>
+                <th class="p-3">Protein (g)</th>
+                <th class="p-3">DeepWork (m)</th>
+                <th class="p-3">English (m)</th>
+                <th class="p-3">Buku (hlm)</th>
+                <th class="p-3">Pengeluaran (Rp)</th>
+                <th class="p-3">Pos Rekening</th>
+                <th class="p-3">Kendala Pabrik / RCA</th>
+                <th class="p-3 text-center">Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="tableActivityBody" class="divide-y divide-slate-100 dark:divide-slate-800">
+              <!-- Dynamically Populated -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- #################### TAB 2: MONITORING BUDGETING & DANA DARURAT #################### -->
+    <div id="tabBudgeting" class="hidden space-y-6">
+
+      <!-- A. BASELINE FINANSIAL & LOGIKA PAY YOURSELF FIRST -->
+      <section class="bg-white dark:bg-darkCard p-5 rounded-xl border border-slate-200 dark:border-darkBorder shadow-sm">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 mb-4 border-b border-slate-100 dark:border-slate-800 gap-2">
+          <div>
+            <h2 class="text-base sm:text-lg font-bold flex items-center gap-2">
+              <i class="fa-solid fa-shield-halved text-emerald-500"></i> Baseline Finansial "Pay Yourself First"
+            </h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Prinsip: Tabungan & Investasi dialokasikan di awal bulan. Katup pengaman defisit HANYA dari Dana Darurat.</p>
+          </div>
+          <span class="text-xs bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 font-bold px-3 py-1 rounded-full border border-emerald-200 dark:border-emerald-800 w-fit">
+            Surplus Terkunci: 59,17% (Rp3.550.000)
+          </span>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
+          <div class="p-3.5 rounded-xl bg-blue-50/60 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-900 shadow-2xs">
+            <span class="text-slate-500 font-medium">Payroll Masuk (BCA)</span>
+            <p class="text-lg font-black text-slate-900 dark:text-slate-100 mt-1">Rp6.000.000</p>
+            <span class="text-[11px] text-blue-600 dark:text-blue-400">Gaji Bersih Bulanan (Non-Shift)</span>
+          </div>
+          <div class="p-3.5 rounded-xl bg-amber-50/60 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900 shadow-2xs">
+            <span class="text-slate-500 font-medium">Operasional Tetap (BCA)</span>
+            <p class="text-lg font-black text-slate-900 dark:text-slate-100 mt-1">Rp2.450.000</p>
+            <span class="text-[11px] text-amber-600 dark:text-amber-400">Kos Rp800k + Harian Rp1,65M (~Rp55k/hr)</span>
+          </div>
+          <div class="p-3.5 rounded-xl bg-emerald-50/60 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-900 shadow-2xs">
+            <span class="text-slate-500 font-medium">Tabungan Nikah (Bank Jago)</span>
+            <p class="text-lg font-black text-emerald-600 dark:text-emerald-400 mt-1">Rp1.875.000/bln</p>
+            <span class="text-[11px] text-emerald-700 dark:text-emerald-300">Target Rp45 Juta dalam 24 Bulan (Usia 27)</span>
+          </div>
+          <div class="p-3.5 rounded-xl bg-purple-50/60 dark:bg-purple-950/20 border border-purple-200 dark:border-purple-900 shadow-2xs">
+            <span class="text-slate-500 font-medium">Skill & Portofolio Investasi</span>
+            <p class="text-lg font-black text-purple-600 dark:text-purple-400 mt-1">Rp1.675.000/bln</p>
+            <span class="text-[11px] text-purple-600 dark:text-purple-400">Skill Rp700k + Bibit Rp975k (Saham/Emas)</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- B. 4 KARTU KPI KEUANGAN -->
+      <section class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-white dark:bg-darkCard p-4 rounded-xl border border-slate-200 dark:border-darkBorder shadow-sm">
+          <div class="flex items-center justify-between text-slate-500 text-xs font-semibold">
+            <span>Kas Operasional Bulan Ini</span>
+            <i class="fa-solid fa-cash-register text-amber-500 text-sm"></i>
+          </div>
+          <p id="kpiKasOps" class="text-xl sm:text-2xl font-black mt-2 text-slate-900 dark:text-white">Rp-</p>
+          <span class="text-[11px] text-slate-500 font-medium">Plafon: Rp2.450.000 (BCA)</span>
+        </div>
+
+        <div class="bg-white dark:bg-darkCard p-4 rounded-xl border border-slate-200 dark:border-darkBorder shadow-sm">
+          <div class="flex items-center justify-between text-slate-500 text-xs font-semibold">
+            <span>Akumulasi Tabungan Nikah</span>
+            <i class="fa-solid fa-ring text-emerald-500 text-sm"></i>
+          </div>
+          <p id="kpiNikahTotal" class="text-xl sm:text-2xl font-black mt-2 text-emerald-600 dark:text-emerald-400">Rp-</p>
+          <span class="text-[11px] text-slate-500 font-medium">Target Usia 27: Rp45.000.000</span>
+        </div>
+
+        <div class="bg-white dark:bg-darkCard p-4 rounded-xl border border-slate-200 dark:border-darkBorder shadow-sm">
+          <div class="flex items-center justify-between text-slate-500 text-xs font-semibold">
+            <span>Alokasi Skill & Portofolio</span>
+            <i class="fa-solid fa-arrow-trend-up text-cyan-500 text-sm"></i>
+          </div>
+          <p id="kpiSkillInvest" class="text-xl sm:text-2xl font-black mt-2 text-cyan-600 dark:text-cyan-400">Rp-</p>
+          <span class="text-[11px] text-slate-500 font-medium">Sertifikasi & Reksadana/Emas</span>
+        </div>
+
+        <div class="bg-white dark:bg-darkCard p-4 rounded-xl border border-slate-200 dark:border-darkBorder shadow-sm">
+          <div class="flex items-center justify-between text-slate-500 text-xs font-semibold">
+            <span>Penarikan Dana Darurat</span>
+            <i class="fa-solid fa-triangle-exclamation text-rose-500 text-sm"></i>
+          </div>
+          <p id="kpiDanaDarurat" class="text-xl sm:text-2xl font-black mt-2 text-slate-900 dark:text-white">Rp0</p>
+          <span id="kpiDaruratStatus" class="text-[11px] text-emerald-500 font-semibold">Disiplin Sempurna (Rp0)</span>
+        </div>
+      </section>
+
+      <!-- C. VISUALISASI GRAFIK FINANSIAL (CHART.JS) -->
+      <section class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        <!-- Progress Bar & Milestones -->
+        <div class="bg-white dark:bg-darkCard p-5 rounded-xl border border-slate-200 dark:border-darkBorder shadow-sm flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <h3 class="text-sm font-bold flex items-center gap-2">
+                <i class="fa-solid fa-bullseye text-emerald-500"></i> Progres Dana Pernikahan (Usia 27)
+              </h3>
+              <span class="text-xs font-bold text-emerald-500" id="nikahProgressPct">0%</span>
+            </div>
+            <p class="text-xs text-slate-400 mb-4">Milestone: Rp45.000.000 (Rp1.875.000/bln selama 24 bulan).</p>
+            <div class="w-full bg-slate-200 dark:bg-darkCardLighter h-4 rounded-full overflow-hidden p-0.5">
+              <div id="nikahProgressBar" class="bg-gradient-to-r from-emerald-500 to-teal-400 h-full rounded-full transition-all duration-700" style="width: 0%"></div>
+            </div>
+            <div class="flex justify-between text-xs font-semibold mt-2 text-slate-500">
+              <span id="nikahCurrentVal">Rp0</span>
+              <span>Target: Rp45.000.000</span>
+            </div>
+          </div>
+          <div class="p-3 mt-4 rounded-lg bg-emerald-50 dark:bg-emerald-950/20 text-xs text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+            <i class="fa-solid fa-lock mr-1.5"></i> <strong>SOP Katup Pengaman:</strong> Tabungan nikah & investasi tidak boleh disentuh jika terjadi defisit bulanan. Gunakan hanya Dana Darurat.
+          </div>
+        </div>
+
+        <!-- Doughnut Chart: Komposisi Gaji -->
+        <div class="bg-white dark:bg-darkCard p-4 rounded-xl border border-slate-200 dark:border-darkBorder shadow-sm">
+          <div class="flex items-center justify-between mb-2">
+            <h3 class="text-sm font-bold flex items-center gap-2">
+              <i class="fa-solid fa-chart-pie text-amber-500"></i> Komposisi Alokasi Gaji
+            </h3>
+            <span class="text-[11px] text-slate-400">Total Rp6.000.000</span>
+          </div>
+          <div class="h-56 flex items-center justify-center">
+            <canvas id="chartBudgetAllocation"></canvas>
+          </div>
+        </div>
+
+        <!-- Bar Chart: Audit Pengeluaran Harian -->
+        <div class="bg-white dark:bg-darkCard p-4 rounded-xl border border-slate-200 dark:border-darkBorder shadow-sm">
+          <div class="flex items-center justify-between mb-1">
+            <h3 class="text-sm font-bold flex items-center gap-2">
+              <i class="fa-solid fa-chart-bar text-rose-500"></i> Audit Pengeluaran Kas Harian
+            </h3>
+            <span class="text-[11px] text-rose-500 font-semibold">Max: Rp55.000/hari</span>
+          </div>
+          <p class="text-[11px] text-slate-400 mb-2">Indikator merah jika melebihi plafon harian aman</p>
+          <div class="h-52">
+            <canvas id="chartDailyExpenses"></canvas>
+          </div>
+        </div>
+      </section>
+
+      <!-- D. TABEL CHECKLIST EVALUASI BULANAN (SOP GAJIAN AKHIR BULAN) -->
+      <section class="bg-white dark:bg-darkCard rounded-xl border border-slate-200 dark:border-darkBorder shadow-sm overflow-hidden">
+        <div class="p-4 border-b border-slate-100 dark:border-slate-800 flex flex-wrap justify-between items-center gap-2">
+          <div>
+            <h3 class="text-sm font-bold">Checklist Evaluasi SOP Gajian Akhir Bulan</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Verifikasi Payroll BCA, auto-transfer Bank Jago, dan Bibit investasi.</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="openBudgetModalForNew()" class="px-3 py-1 text-xs bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-semibold transition">
+              <i class="fa-solid fa-plus mr-1"></i> Tambah Periode Gaji
+            </button>
+            <span class="text-xs bg-slate-100 dark:bg-darkCardLighter px-2.5 py-1 rounded text-slate-500 font-medium">Buku Kas Bulanan</span>
+          </div>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr class="bg-slate-100/70 dark:bg-darkCardLighter text-slate-600 dark:text-slate-300 border-b border-slate-200 dark:border-slate-700 font-bold">
+                <th class="p-3">Periode</th>
+                <th class="p-3">Gaji BCA</th>
+                <th class="p-3 text-center">Kos Lunas</th>
+                <th class="p-3 text-center">Ops Aman</th>
+                <th class="p-3 text-center">Surplus Masuk Jago</th>
+                <th class="p-3 text-center">Nikah Terkunci</th>
+                <th class="p-3 text-center">Skill Masuk</th>
+                <th class="p-3 text-center">Investasi Bibit</th>
+                <th class="p-3">Sisa Kas BCA</th>
+                <th class="p-3">Tarik Darurat</th>
+                <th class="p-3">Evaluasi SOP</th>
+                <th class="p-3 text-center">Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="tableBudgetBody" class="divide-y divide-slate-100 dark:divide-slate-800">
+              <!-- Dynamically Populated -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+    </div>
+
+  </main>
+
+  <!-- ==================== MODAL 1: 60-SEC QUICK LOG ENTRY ==================== -->
+  <div id="entryModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-darkCard w-full max-w-lg rounded-2xl p-5 border border-slate-200 dark:border-darkBorder shadow-2xl max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+        <div>
+          <h3 class="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+            <i class="fa-solid fa-stopwatch text-indigo-500"></i> Checklist Log Harian (60 Detik)
+          </h3>
+          <p class="text-xs text-slate-500">Tersimpan ke LocalStorage & otomatis terkirim ke Google Sheets</p>
+        </div>
+        <button onclick="toggleModal('entryModal', false)" class="text-slate-400 hover:text-slate-200 p-1">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <form id="quickEntryForm" onsubmit="handleQuickEntry(event)" class="mt-4 space-y-4 text-xs">
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold mb-1">Tanggal</label>
+            <input type="date" id="inputDate" required class="w-full bg-slate-50 dark:bg-darkCardLighter border border-slate-300 dark:border-slate-700 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none text-slate-900 dark:text-slate-100">
+          </div>
+          <div>
+            <label class="block font-semibold mb-1">Status Shift Kerja</label>
+            <select id="inputStatus" class="w-full bg-slate-50 dark:bg-darkCardLighter border border-slate-300 dark:border-slate-700 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none text-slate-900 dark:text-slate-100">
+              <option value="Normal 08-16">Normal 08-16</option>
+              <option value="Lembur">Lembur</option>
+              <option value="Libur">Libur</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Shalat Checklist -->
+        <div>
+          <label class="block font-semibold mb-1.5">Checklist Shalat 5 Waktu</label>
+          <div class="grid grid-cols-5 gap-2 text-center">
+            <label class="flex flex-col items-center p-2 rounded-lg bg-slate-50 dark:bg-darkCardLighter border border-slate-200 dark:border-slate-700 cursor-pointer">
+              <span class="font-bold mb-1">Subuh</span>
+              <input type="checkbox" id="chkSubuh" checked class="w-4 h-4 text-blue-600 rounded">
+            </label>
+            <label class="flex flex-col items-center p-2 rounded-lg bg-slate-50 dark:bg-darkCardLighter border border-slate-200 dark:border-slate-700 cursor-pointer">
+              <span class="font-bold mb-1">Dzuhur</span>
+              <input type="checkbox" id="chkDzuhur" checked class="w-4 h-4 text-blue-600 rounded">
+            </label>
+            <label class="flex flex-col items-center p-2 rounded-lg bg-slate-50 dark:bg-darkCardLighter border border-slate-200 dark:border-slate-700 cursor-pointer">
+              <span class="font-bold mb-1">Ashar</span>
+              <input type="checkbox" id="chkAshar" checked class="w-4 h-4 text-blue-600 rounded">
+            </label>
+            <label class="flex flex-col items-center p-2 rounded-lg bg-slate-50 dark:bg-darkCardLighter border border-slate-200 dark:border-slate-700 cursor-pointer">
+              <span class="font-bold mb-1">Maghrib</span>
+              <input type="checkbox" id="chkMaghrib" checked class="w-4 h-4 text-blue-600 rounded">
+            </label>
+            <label class="flex flex-col items-center p-2 rounded-lg bg-slate-50 dark:bg-darkCardLighter border border-slate-200 dark:border-slate-700 cursor-pointer">
+              <span class="font-bold mb-1">Isya</span>
+              <input type="checkbox" id="chkIsya" checked class="w-4 h-4 text-blue-600 rounded">
+            </label>
+          </div>
+        </div>
+
+        <!-- Habit Numerik -->
+        <div class="grid grid-cols-3 gap-3">
+          <div>
+            <label class="block font-semibold mb-1">Sesi Gym (60m)</label>
+            <select id="inputGym" class="w-full bg-slate-50 dark:bg-darkCardLighter border border-slate-300 dark:border-slate-700 rounded-lg p-2 outline-none">
+              <option value="true">Selesai (Ya)</option>
+              <option value="false">Tidak / Rest</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold mb-1">Tidur (Jam)</label>
+            <input type="number" step="0.1" id="inputTidur" value="6.8" class="w-full bg-slate-50 dark:bg-darkCardLighter border border-slate-300 dark:border-slate-700 rounded-lg p-2 outline-none">
+          </div>
+          <div>
+            <label class="block font-semibold mb-1">Protein (Gram)</label>
+            <input type="number" id="inputProtein" value="130" class="w-full bg-slate-50 dark:bg-darkCardLighter border border-slate-300 dark:border-slate-700 rounded-lg p-2 outline-none">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-3 gap-3">
+          <div>
+            <label class="block font-semibold mb-1">Deep Work (Menit)</label>
+            <input type="number" id="inputDeepwork" value="75" class="w-full bg-slate-50 dark:bg-darkCardLighter border border-slate-300 dark:border-slate-700 rounded-lg p-2 outline-none">
+          </div>
+          <div>
+            <label class="block font-semibold mb-1">English (Menit)</label>
+            <input type="number" id="inputEnglish" value="45" class="w-full bg-slate-50 dark:bg-darkCardLighter border border-slate-300 dark:border-slate-700 rounded-lg p-2 outline-none">
+          </div>
+          <div>
+            <label class="block font-semibold mb-1">Buku (Halaman)</label>
+            <input type="number" id="inputBuku" value="15" class="w-full bg-slate-50 dark:bg-darkCardLighter border border-slate-300 dark:border-slate-700 rounded-lg p-2 outline-none">
+          </div>
+        </div>
+
+        <!-- Finansial Harian & Pos -->
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold mb-1">Pengeluaran Kas Harian (Rp)</label>
+            <input type="number" id="inputKas" value="50000" class="w-full bg-slate-50 dark:bg-darkCardLighter border border-slate-300 dark:border-slate-700 rounded-lg p-2 outline-none">
+          </div>
+          <div>
+            <label class="block font-semibold mb-1">Pos Rekening</label>
+            <select id="inputPos" class="w-full bg-slate-50 dark:bg-darkCardLighter border border-slate-300 dark:border-slate-700 rounded-lg p-2 outline-none">
+              <option value="BCA Operasional">BCA Operasional (Harian)</option>
+              <option value="Bank Jago">Bank Jago (Kantong Khusus)</option>
+              <option value="Tunai / Cash">Tunai / Cash</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- RCA Kendala -->
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold mb-1">Kendala / Akar Masalah (RCA)</label>
+            <select id="inputRCA" class="w-full bg-slate-50 dark:bg-darkCardLighter border border-slate-300 dark:border-slate-700 rounded-lg p-2 outline-none">
+              <option value="Nihil">Nihil / Lancar</option>
+              <option value="Lembur/Pabrik">Lembur / Pabrik</option>
+              <option value="Kelelahan">Kelelahan</option>
+              <option value="Distraksi Pribadi">Distraksi Pribadi</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold mb-1">Catatan Operasional Pabrik</label>
+            <input type="text" id="inputCatatan" placeholder="Kondisi lini / verifikasi PM..." class="w-full bg-slate-50 dark:bg-darkCardLighter border border-slate-300 dark:border-slate-700 rounded-lg p-2 outline-none">
+          </div>
+        </div>
+
+        <div class="pt-2 flex justify-end gap-2 border-t border-slate-100 dark:border-slate-800">
+          <button type="button" onclick="toggleModal('entryModal', false)" class="px-4 py-2 text-xs rounded-lg border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800">Tutup</button>
+          <button type="submit" id="btnSubmitQuickEntry" class="px-5 py-2 text-xs bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-bold shadow-md flex items-center gap-1.5">
+            <i class="fa-solid fa-paper-plane"></i>
+            <span>Simpan & Kirim ke Sheets</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL 2: SETUP APPS SCRIPT URL & TEMPLATE CODE ==================== -->
+  <div id="setupModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-darkCard w-full max-w-2xl rounded-2xl p-5 border border-slate-200 dark:border-darkBorder shadow-2xl max-h-[90vh] flex flex-col">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+        <div>
+          <h3 class="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+            <i class="fa-solid fa-cloud-arrow-up text-blue-500"></i> Setup Google Sheets & Inisialisasi Data Awal
+          </h3>
+          <p class="text-xs text-slate-500">Hubungkan spreadsheet Anda sebagai sumber data utama & input harian</p>
+        </div>
+        <button onclick="toggleModal('setupModal', false)" class="text-slate-400 hover:text-slate-200 p-1">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <!-- Navigation Tabs inside Setup Modal -->
+      <div class="mt-3 flex gap-2 border-b border-slate-200 dark:border-slate-800 pb-2 text-xs">
+        <button id="tabSetupUrlBtn" onclick="switchSetupTab('url')" class="px-3 py-1.5 rounded-lg bg-blue-600 text-white font-semibold flex items-center gap-1.5">
+          <i class="fa-solid fa-link"></i> 1. Konfigurasi URL
+        </button>
+        <button id="tabSetupScriptBtn" onclick="switchSetupTab('script')" class="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-darkCardLighter text-slate-600 dark:text-slate-300 font-semibold flex items-center gap-1.5">
+          <i class="fa-solid fa-code"></i> 2. Salin Script Backend Google Sheet
+        </button>
+      </div>
+
+      <!-- Tab Content: URL Input -->
+      <div id="setupTabUrl" class="mt-4 space-y-4 text-xs flex-1 overflow-y-auto">
+        <div class="p-3 bg-blue-50 dark:bg-blue-950/30 rounded-xl border border-blue-200 dark:border-blue-900/60 text-slate-700 dark:text-slate-300 space-y-1">
+          <p class="font-bold text-blue-700 dark:text-blue-400 flex items-center gap-1.5">
+            <i class="fa-solid fa-circle-info"></i> Alur Kerja Data Awal & Input Harian:
+          </p>
+          <p>1. Buat Google Sheet baru lalu tempelkan skrip dari Tab <b>"2. Salin Script Backend"</b>.</p>
+          <p>2. Jalankan fungsi <code>initStarterData</code> di Google Sheets untuk membuat format tabel dan data awal bulan secara otomatis.</p>
+          <p>3. Deploy sebagai Web App, lalu salin URL Web App dan URL Spreadsheet ke bawah ini.</p>
+        </div>
+
+        <div>
+          <label class="block font-semibold mb-1 text-slate-700 dark:text-slate-200">Google Apps Script Web App Endpoint URL (berakhiran /exec):</label>
+          <input id="inputEndpointUrl" type="url" placeholder="https://script.google.com/macros/s/.../exec" class="w-full bg-slate-50 dark:bg-darkCardLighter border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono text-[11px] text-slate-800 dark:text-slate-200" />
+          <p class="text-[11px] text-slate-400 mt-1">Digunakan untuk <b>menarik data awal</b> dan <b>menyimpan input 60 detik</b> secara langsung.</p>
+        </div>
+
+        <div>
+          <label class="block font-semibold mb-1 text-slate-700 dark:text-slate-200">Tautan Langsung Google Spreadsheet Anda:</label>
+          <input id="inputSheetDirectUrl" type="url" placeholder="https://docs.google.com/spreadsheets/d/..." class="w-full bg-slate-50 dark:bg-darkCardLighter border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono text-[11px] text-slate-800 dark:text-slate-200" />
+          <p class="text-[11px] text-slate-400 mt-1">Tombol <b>"Buka Sheets"</b> di header akan langsung membuka dokumen kerja spreadsheet Anda ini.</p>
+        </div>
+
+        <div class="pt-2 flex justify-end gap-2 border-t border-slate-100 dark:border-slate-800">
+          <button onclick="toggleModal('setupModal', false)" class="px-3.5 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800">Batal</button>
+          <button onclick="saveEndpointConfig()" class="px-4 py-1.5 text-xs bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold shadow-sm flex items-center gap-1.5">
+            <i class="fa-solid fa-floppy-disk"></i>
+            <span>Simpan & Sinkronkan Data Awal</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Tab Content: Apps Script Generator & Instructions -->
+      <div id="setupTabScript" class="mt-4 hidden flex-1 overflow-hidden flex flex-col text-xs">
+        <div class="flex items-center justify-between mb-1.5">
+          <span class="font-bold text-slate-700 dark:text-slate-300">Skrip Google Apps Script (Code.gs) - Siap Salin:</span>
+          <button onclick="copyAppsScriptCode()" class="px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded font-medium flex items-center gap-1 transition">
+            <i class="fa-regular fa-copy"></i> Salin Seluruh Skrip
+          </button>
+        </div>
+        <textarea id="appsScriptTemplate" readonly class="w-full flex-1 bg-slate-900 text-emerald-400 font-mono text-[11px] p-3 rounded-lg border border-slate-700 outline-none leading-relaxed select-all min-h-[220px]"></textarea>
+        <p class="text-[11px] text-slate-400 mt-2">
+          <strong>Langkah di Google Sheets:</strong> Buka Sheet > Klik <em>Extensions</em> > <em>Apps Script</em> > Hapus kode lama & Tempel skrip di atas > Klik <em>Deploy > New deployment > Web App > Who has access: Anyone > Deploy</em>.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL 3: EDIT BUDGET PERIODE BULANAN ==================== -->
+  <div id="budgetModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-darkCard w-full max-w-md rounded-2xl p-5 border border-slate-200 dark:border-darkBorder shadow-2xl max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+        <div>
+          <h3 id="budgetModalTitle" class="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+            <i class="fa-solid fa-wallet text-emerald-500"></i> Edit Periode Budgeting
+          </h3>
+          <p class="text-xs text-slate-500">Koreksi pencatatan SOP alokasi gaji bulanan</p>
+        </div>
+        <button onclick="toggleModal('budgetModal', false)" class="text-slate-400 hover:text-slate-200 p-1">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <form id="budgetEntryForm" onsubmit="handleBudgetSubmit(event)" class="mt-4 space-y-3.5 text-xs">
+        <input type="hidden" id="editBudgetIndex" value="-1">
+        <div>
+          <label class="block font-semibold mb-1">Nama Periode / Bulan</label>
+          <input type="text" id="bgtBulan" required placeholder="Contoh: November 2026" class="w-full bg-slate-50 dark:bg-darkCardLighter border border-slate-300 dark:border-slate-700 rounded-lg p-2 outline-none">
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold mb-1">Gaji BCA (Rp)</label>
+            <input type="number" id="bgtGaji" value="6000000" class="w-full bg-slate-50 dark:bg-darkCardLighter border border-slate-300 dark:border-slate-700 rounded-lg p-2 outline-none">
+          </div>
+          <div>
+            <label class="block font-semibold mb-1">Sisa Kas BCA (Rp)</label>
+            <input type="number" id="bgtSisaKas" value="0" class="w-full bg-slate-50 dark:bg-darkCardLighter border border-slate-300 dark:border-slate-700 rounded-lg p-2 outline-none">
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-semibold mb-1 text-rose-500">Penarikan Dana Darurat (Rp) - Diisi jika defisit</label>
+          <input type="number" id="bgtTarikDarurat" value="0" class="w-full bg-slate-50 dark:bg-darkCardLighter border border-slate-300 dark:border-slate-700 rounded-lg p-2 outline-none text-rose-600 font-bold">
+        </div>
+
+        <!-- Checklist Verifikasi Alokasi -->
+        <div class="space-y-1.5 p-3 rounded-lg bg-slate-50 dark:bg-darkCardLighter/60 border border-slate-200 dark:border-slate-700">
+          <span class="block font-semibold text-slate-700 dark:text-slate-200 mb-1">Verifikasi SOP Pay Yourself First:</span>
+          <div class="grid grid-cols-2 gap-2">
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" id="bgtKos" checked class="w-4 h-4 text-emerald-600 rounded">
+              <span>Kos Lunas (800k)</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" id="bgtOpsAman" checked class="w-4 h-4 text-emerald-600 rounded">
+              <span>Ops Aman (1,65M)</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" id="bgtJago" checked class="w-4 h-4 text-emerald-600 rounded">
+              <span>Surplus ke Jago</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" id="bgtNikah" checked class="w-4 h-4 text-emerald-600 rounded">
+              <span>Nikah Terkunci (1.875k)</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" id="bgtSkill" checked class="w-4 h-4 text-emerald-600 rounded">
+              <span>Skill & Kursus (700k)</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" id="bgtBibit" checked class="w-4 h-4 text-emerald-600 rounded">
+              <span>Bibit Saham/Emas (975k)</span>
+            </label>
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-semibold mb-1">Catatan Evaluasi Bulanan</label>
+          <input type="text" id="bgtCatatan" placeholder="Catatan kondisi finansial..." class="w-full bg-slate-50 dark:bg-darkCardLighter border border-slate-300 dark:border-slate-700 rounded-lg p-2 outline-none">
+        </div>
+
+        <div class="pt-2 flex justify-end gap-2 border-t border-slate-100 dark:border-slate-800">
+          <button type="button" onclick="toggleModal('budgetModal', false)" class="px-4 py-2 text-xs rounded-lg border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800">Batal</button>
+          <button type="submit" class="px-5 py-2 text-xs bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-bold shadow-md">Simpan Periode</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL 4: MASTER DATA INSPECTOR & BACKUP ==================== -->
+  <div id="masterDataModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-darkCard w-full max-w-2xl rounded-2xl p-5 border border-slate-200 dark:border-darkBorder shadow-2xl max-h-[90vh] flex flex-col">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+        <div>
+          <h3 class="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+            <i class="fa-solid fa-database text-amber-500"></i> Inspeksi Master Data & Cadangan Lokal
+          </h3>
+          <p class="text-xs text-slate-500">Lihat seluruh database mentah, ekspor JSON, atau kembalikan data awal default</p>
+        </div>
+        <button onclick="toggleModal('masterDataModal', false)" class="text-slate-400 hover:text-slate-200 p-1">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <div class="mt-4 flex gap-2 border-b border-slate-200 dark:border-slate-800 pb-2 text-xs">
+        <button id="btnViewActJson" onclick="switchMasterJsonView('activities')" class="px-3 py-1.5 rounded-lg bg-blue-600 text-white font-semibold">Master Log Harian</button>
+        <button id="btnViewBudJson" onclick="switchMasterJsonView('budget')" class="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-darkCardLighter text-slate-600 dark:text-slate-300 font-semibold">Master Budget Bulanan</button>
+      </div>
+
+      <div class="mt-3 flex-1 overflow-hidden flex flex-col">
+        <label class="block text-xs font-semibold mb-1 text-slate-500">Tampilan JSON Mentah (Editable):</label>
+        <textarea id="rawMasterJson" class="w-full flex-1 min-h-[220px] bg-slate-900 text-emerald-400 font-mono text-[11px] p-3 rounded-lg border border-slate-700 outline-none leading-relaxed"></textarea>
+      </div>
+
+      <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex flex-wrap items-center justify-between gap-2">
+        <button onclick="restoreFactoryDefaults()" class="px-3.5 py-1.5 text-xs bg-rose-600 hover:bg-rose-700 text-white rounded-lg font-semibold transition" title="Hapus cache dan kembalikan ke data awal bawaan sistem">
+          <i class="fa-solid fa-arrows-rotate mr-1"></i> Reset ke Data Awal Pabrik
+        </button>
+
+        <div class="flex items-center gap-2">
+          <button onclick="copyMasterJson()" class="px-3.5 py-1.5 text-xs bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 text-slate-800 dark:text-slate-200 rounded-lg font-medium transition">
+            <i class="fa-regular fa-copy mr-1"></i> Salin JSON
+          </button>
+          <button onclick="applyEditedJson()" class="px-4 py-1.5 text-xs bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold transition">
+            <i class="fa-solid fa-check mr-1"></i> Terapkan Perubahan JSON
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toastNotification" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 flex items-center gap-2.5 px-4 py-2.5 rounded-xl shadow-xl text-xs font-semibold text-white bg-slate-900 border border-slate-700">
+    <i id="toastIcon" class="fa-solid fa-circle-check text-emerald-400 text-sm"></i>
+    <span id="toastMsg">Data berhasil diperbarui</span>
+  </div>
+
+  <!-- ==================== JAVASCRIPT SYSTEM ENGINE ==================== -->
+  <script>
+    /* ================= 1. LOCAL DATA & FALLBACK STORE ================= */
+    const DEFAULT_ACTIVITIES = [
+      { tgl: "2026-10-12", status: "Normal 08-16", shalat: [true, true, true, true, true], gym: true, tidur: 6.8, protein: 135, deepwork: 75, english: 45, buku: 15, kas: 48000, pos: "BCA Operasional", rca: "Nihil", catatan: "Aman, lini packaging beroperasi stabil" },
+      { tgl: "2026-10-13", status: "Normal 08-16", shalat: [true, true, true, true, true], gym: false, tidur: 7.0, protein: 120, deepwork: 60, english: 30, buku: 10, kas: 52000, pos: "BCA Operasional", rca: "Nihil", catatan: "Simulasi Modbus TCP lancar" },
+      { tgl: "2026-10-14", status: "Lembur", shalat: [true, true, true, true, true], gym: false, tidur: 5.5, protein: 100, deepwork: 0, english: 15, buku: 0, kas: 65000, pos: "BCA Operasional", rca: "Lembur/Pabrik", catatan: "Emergency breakdown inverter motor Line 2" },
+      { tgl: "2026-10-15", status: "Normal 08-16", shalat: [true, true, true, true, true], gym: true, tidur: 6.5, protein: 140, deepwork: 80, english: 40, buku: 20, kas: 45000, pos: "BCA Operasional", rca: "Nihil", catatan: "Upper body session tuntas di gym" },
+      { tgl: "2026-10-16", status: "Normal 08-16", shalat: [true, true, true, true, false], gym: true, tidur: 6.0, protein: 110, deepwork: 45, english: 20, buku: 5, kas: 58000, pos: "BCA Operasional", rca: "Kelelahan", catatan: "Kelelahan fisik, terlelap saat jeda Isya" },
+      { tgl: "2026-10-17", status: "Libur", shalat: [true, true, true, true, true], gym: true, tidur: 7.5, protein: 145, deepwork: 90, english: 60, buku: 30, kas: 75000, pos: "BCA Operasional", rca: "Distraksi Pribadi", catatan: "Makan di luar jadwal akhir pekan" },
+      { tgl: "2026-10-18", status: "Normal 08-16", shalat: [true, true, true, true, true], gym: false, tidur: 6.7, protein: 125, deepwork: 70, english: 35, buku: 12, kas: 50000, pos: "BCA Operasional", rca: "Nihil", catatan: "Audit PM bulanan berjalan baik" }
+    ];
+
+    const DEFAULT_BUDGET = [
+      { bulan: "Agustus 2026", gaji: 6000000, kos: true, opsAman: true, jago: true, nikah: true, skill: true, bibit: true, sisaKas: 125000, tarikDarurat: 0, catatan: "Disiplin sempurna, surplus 59,17% aman terkunci" },
+      { bulan: "September 2026", gaji: 6000000, kos: true, opsAman: false, jago: true, nikah: true, skill: true, bibit: true, sisaKas: 0, tarikDarurat: 150000, catatan: "Servis darurat motor, katup pengaman terpakai dari Dana Darurat" },
+      { bulan: "Oktober 2026 (YTD)", gaji: 6000000, kos: true, opsAman: true, jago: true, nikah: true, skill: true, bibit: true, sisaKas: 840000, tarikDarurat: 0, catatan: "Berjalan sesuai plafon aman harian Rp55.000" }
+    ];
+
+    let state = {
+      activities: JSON.parse(localStorage.getItem("dashboard_activities")) || DEFAULT_ACTIVITIES,
+      budget: JSON.parse(localStorage.getItem("dashboard_budget")) || DEFAULT_BUDGET,
+      endpointUrl: localStorage.getItem("gas_endpoint_url") || "",
+      sheetUrl: localStorage.getItem("sheet_direct_url") || "https://docs.google.com/spreadsheets/",
+      charts: {},
+      editingActivityIndex: -1,
+      currentJsonTab: 'activities'
+    };
+
+    /* ================= 2B. EDIT & DELETE LOGIC ================= */
+    function editActivity(index) {
+      if (index < 0 || index >= state.activities.length) return;
+      const item = state.activities[index];
+      state.editingActivityIndex = index;
+
+      document.getElementById("inputDate").value = item.tgl;
+      document.getElementById("inputStatus").value = item.status;
+      document.getElementById("chkSubuh").checked = !!item.shalat[0];
+      document.getElementById("chkDzuhur").checked = !!item.shalat[1];
+      document.getElementById("chkAshar").checked = !!item.shalat[2];
+      document.getElementById("chkMaghrib").checked = !!item.shalat[3];
+      document.getElementById("chkIsya").checked = !!item.shalat[4];
+      document.getElementById("inputGym").value = item.gym ? "true" : "false";
+      document.getElementById("inputTidur").value = item.tidur;
+      document.getElementById("inputProtein").value = item.protein;
+      document.getElementById("inputDeepwork").value = item.deepwork;
+      document.getElementById("inputEnglish").value = item.english;
+      document.getElementById("inputBuku").value = item.buku;
+      document.getElementById("inputKas").value = item.kas;
+      document.getElementById("inputPos").value = item.pos || "BCA Operasional";
+      document.getElementById("inputRCA").value = item.rca;
+      document.getElementById("inputCatatan").value = item.catatan || "";
+
+      document.getElementById("btnSubmitQuickEntry").innerHTML = `<i class="fa-solid fa-floppy-disk"></i> <span>Perbarui Data Log</span>`;
+      toggleModal('entryModal', true);
+    }
+
+    function deleteActivity(index) {
+      if (index < 0 || index >= state.activities.length) return;
+      const item = state.activities[index];
+      const targetDate = item.tgl;
+      
+      // Hapus data dari array lokal
+      state.activities.splice(index, 1);
+      localStorage.setItem("dashboard_activities", JSON.stringify(state.activities));
+      showToast(`Log tanggal ${targetDate} berhasil dihapus.`);
+      refreshDashboardViews();
+    }
+
+    function openBudgetModalForNew() {
+      document.getElementById("budgetModalTitle").innerHTML = `<i class="fa-solid fa-wallet text-emerald-500"></i> Tambah Periode Budgeting Baru`;
+      document.getElementById("editBudgetIndex").value = "-1";
+      document.getElementById("bgtBulan").value = "";
+      document.getElementById("bgtGaji").value = 6000000;
+      document.getElementById("bgtSisaKas").value = 0;
+      document.getElementById("bgtTarikDarurat").value = 0;
+      document.getElementById("bgtKos").checked = true;
+      document.getElementById("bgtOpsAman").checked = true;
+      document.getElementById("bgtJago").checked = true;
+      document.getElementById("bgtNikah").checked = true;
+      document.getElementById("bgtSkill").checked = true;
+      document.getElementById("bgtBibit").checked = true;
+      document.getElementById("bgtCatatan").value = "";
+      toggleModal('budgetModal', true);
+    }
+
+    function editBudget(index) {
+      if (index < 0 || index >= state.budget.length) return;
+      const b = state.budget[index];
+      document.getElementById("budgetModalTitle").innerHTML = `<i class="fa-solid fa-wallet text-emerald-500"></i> Edit Periode Budgeting (${b.bulan})`;
+      document.getElementById("editBudgetIndex").value = index;
+      document.getElementById("bgtBulan").value = b.bulan;
+      document.getElementById("bgtGaji").value = b.gaji;
+      document.getElementById("bgtSisaKas").value = b.sisaKas;
+      document.getElementById("bgtTarikDarurat").value = b.tarikDarurat || 0;
+      document.getElementById("bgtKos").checked = !!b.kos;
+      document.getElementById("bgtOpsAman").checked = !!b.opsAman;
+      document.getElementById("bgtJago").checked = !!b.jago;
+      document.getElementById("bgtNikah").checked = !!b.nikah;
+      document.getElementById("bgtSkill").checked = !!b.skill;
+      document.getElementById("bgtBibit").checked = !!b.bibit;
+      document.getElementById("bgtCatatan").value = b.catatan || "";
+      toggleModal('budgetModal', true);
+    }
+
+    function deleteBudget(index) {
+      if (index < 0 || index >= state.budget.length) return;
+      const b = state.budget[index];
+      const bulan = b.bulan;
+      state.budget.splice(index, 1);
+      localStorage.setItem("dashboard_budget", JSON.stringify(state.budget));
+      showToast(`Periode ${bulan} berhasil dihapus.`);
+      refreshDashboardViews();
+    }
+
+    function handleBudgetSubmit(e) {
+      e.preventDefault();
+      const idx = parseInt(document.getElementById("editBudgetIndex").value);
+      const newBudget = {
+        bulan: document.getElementById("bgtBulan").value,
+        gaji: parseInt(document.getElementById("bgtGaji").value) || 6000000,
+        sisaKas: parseInt(document.getElementById("bgtSisaKas").value) || 0,
+        tarikDarurat: parseInt(document.getElementById("bgtTarikDarurat").value) || 0,
+        kos: document.getElementById("bgtKos").checked,
+        opsAman: document.getElementById("bgtOpsAman").checked,
+        jago: document.getElementById("bgtJago").checked,
+        nikah: document.getElementById("bgtNikah").checked,
+        skill: document.getElementById("bgtSkill").checked,
+        bibit: document.getElementById("bgtBibit").checked,
+        catatan: document.getElementById("bgtCatatan").value || "-"
+      };
+
+      if (idx >= 0 && idx < state.budget.length) {
+        state.budget[idx] = newBudget;
+        showToast(`Periode ${newBudget.bulan} berhasil diperbarui.`);
+      } else {
+        state.budget.push(newBudget);
+        showToast(`Periode ${newBudget.bulan} berhasil ditambahkan.`);
+      }
+
+      localStorage.setItem("dashboard_budget", JSON.stringify(state.budget));
+      toggleModal('budgetModal', false);
+      refreshDashboardViews();
+    }
+
+    /* ================= 2C. MASTER DATA INSPECTOR & BACKUP ================= */
+    function switchMasterJsonView(type) {
+      state.currentJsonTab = type;
+      const btnAct = document.getElementById("btnViewActJson");
+      const btnBud = document.getElementById("btnViewBudJson");
+      const txtArea = document.getElementById("rawMasterJson");
+
+      if (type === 'activities') {
+        btnAct.className = "px-3 py-1.5 rounded-lg bg-blue-600 text-white font-semibold";
+        btnBud.className = "px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-darkCardLighter text-slate-600 dark:text-slate-300 font-semibold";
+        txtArea.value = JSON.stringify(state.activities, null, 2);
+      } else {
+        btnBud.className = "px-3 py-1.5 rounded-lg bg-blue-600 text-white font-semibold";
+        btnAct.className = "px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-darkCardLighter text-slate-600 dark:text-slate-300 font-semibold";
+        txtArea.value = JSON.stringify(state.budget, null, 2);
+      }
+    }
+
+    function copyMasterJson() {
+      const txtArea = document.getElementById("rawMasterJson");
+      txtArea.select();
+      document.execCommand('copy');
+      showToast("Data JSON berhasil disalin ke clipboard!");
+    }
+
+    function applyEditedJson() {
+      const txtArea = document.getElementById("rawMasterJson");
+      try {
+        const parsed = JSON.parse(txtArea.value);
+        if (!Array.isArray(parsed)) throw new Error("Format JSON harus berupa Array [...]");
+
+        if (state.currentJsonTab === 'activities') {
+          state.activities = parsed;
+          localStorage.setItem("dashboard_activities", JSON.stringify(parsed));
+          showToast(`Master Log Harian (${parsed.length} baris) berhasil disimpan.`);
+        } else {
+          state.budget = parsed;
+          localStorage.setItem("dashboard_budget", JSON.stringify(parsed));
+          showToast(`Master Budget (${parsed.length} baris) berhasil disimpan.`);
+        }
+        refreshDashboardViews();
+        toggleModal('masterDataModal', false);
+      } catch (err) {
+        showToast("JSON tidak valid: " + err.message, false);
+      }
+    }
+
+    function restoreFactoryDefaults() {
+      state.activities = JSON.parse(JSON.stringify(DEFAULT_ACTIVITIES));
+      state.budget = JSON.parse(JSON.stringify(DEFAULT_BUDGET));
+      localStorage.setItem("dashboard_activities", JSON.stringify(state.activities));
+      localStorage.setItem("dashboard_budget", JSON.stringify(state.budget));
+      switchMasterJsonView(state.currentJsonTab);
+      refreshDashboardViews();
+      showToast("Master data berhasil dikembalikan ke pengaturan awal pabrik.");
+    }
+
+    /* ================= 2. UI NAVIGATION & MODALS ================= */
+    function switchTab(tab) {
+      const tabAct = document.getElementById("tabActivities");
+      const tabBud = document.getElementById("tabBudgeting");
+      const btnAct = document.getElementById("tabBtnActivities");
+      const btnBud = document.getElementById("tabBtnBudgeting");
+
+      if (tab === "activities") {
+        tabAct.classList.remove("hidden");
+        tabBud.classList.add("hidden");
+        btnAct.className = "px-4 py-2 text-sm font-bold border-b-2 border-blue-600 text-blue-600 dark:text-blue-400 transition flex items-center gap-2";
+        btnBud.className = "px-4 py-2 text-sm font-bold border-b-2 border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 transition flex items-center gap-2";
+      } else {
+        tabAct.classList.add("hidden");
+        tabBud.classList.remove("hidden");
+        btnBud.className = "px-4 py-2 text-sm font-bold border-b-2 border-blue-600 text-blue-600 dark:text-blue-400 transition flex items-center gap-2";
+        btnAct.className = "px-4 py-2 text-sm font-bold border-b-2 border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 transition flex items-center gap-2";
+      }
+    }
+
+    function toggleDarkMode() {
+      const html = document.documentElement;
+      const icon = document.getElementById("themeIcon");
+      if (html.classList.contains("dark")) {
+        html.classList.remove("dark");
+        icon.className = "fa-solid fa-moon";
+        localStorage.setItem("theme", "light");
+      } else {
+        html.classList.add("dark");
+        icon.className = "fa-solid fa-sun";
+        localStorage.setItem("theme", "dark");
+      }
+      renderAllCharts();
+    }
+
+    const APPS_SCRIPT_SOURCE = `function doGet(e) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  
+  // 1. Ambil Log Harian
+  const shAct = ss.getSheetByName("Log_Harian");
+  let activitiesData = [];
+  if (shAct && shAct.getLastRow() > 1) {
+    const actRows = shAct.getDataRange().getValues();
+    for (let i = 1; i < actRows.length; i++) {
+      const row = actRows[i];
+      if (!row[0]) continue;
+      const formattedDate = Utilities.formatDate(new Date(row[0]), "GMT+7", "yyyy-MM-dd");
+      activitiesData.push({
+        tgl: String(formattedDate),
+        status: String(row[1] || "Normal 08-16"),
+        shalat: [Boolean(row[2]), Boolean(row[3]), Boolean(row[4]), Boolean(row[5]), Boolean(row[6])],
+        gym: Boolean(row[7]),
+        tidur: Number(row[8]) || 0,
+        protein: Number(row[9]) || 0,
+        deepwork: Number(row[10]) || 0,
+        english: Number(row[11]) || 0,
+        buku: Number(row[12]) || 0,
+        kas: Number(row[13]) || 0,
+        pos: String(row[14] || "BCA Operasional"),
+        rca: String(row[15] || "Nihil"),
+        catatan: String(row[16] || "-")
+      });
+    }
+  }
+
+  // 2. Ambil Budget Bulanan
+  const shBud = ss.getSheetByName("Budget_Bulanan");
+  let budgetData = [];
+  if (shBud && shBud.getLastRow() > 1) {
+    const budRows = shBud.getDataRange().getValues();
+    for (let j = 1; j < budRows.length; j++) {
+      const bRow = budRows[j];
+      if (!bRow[0]) continue;
+      budgetData.push({
+        bulan: String(bRow[0]),
+        gaji: Number(bRow[1]) || 6000000,
+        kos: Boolean(bRow[2]),
+        opsAman: Boolean(bRow[3]),
+        jago: Boolean(bRow[4]),
+        nikah: Boolean(bRow[5]),
+        skill: Boolean(bRow[6]),
+        bibit: Boolean(bRow[7]),
+        sisaKas: Number(bRow[8]) || 0,
+        tarikDarurat: Number(bRow[9]) || 0,
+        catatan: String(bRow[10] || "-")
+      });
+    }
+  }
+
+  const payload = {
+    activities: activitiesData,
+    budget: budgetData
+  };
+
+  return ContentService.createTextOutput(JSON.stringify(payload))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+function doPost(e) {
+  try {
+    const data = JSON.parse(e.postData.contents);
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+
+    if (data.type === "activity") {
+      const shAct = ss.getSheetByName("Log_Harian");
+      if (!shAct) throw new Error("Sheet Log_Harian tidak ditemukan");
+
+      shAct.insertRowAfter(1);
+      shAct.getRange(2, 1, 1, 17).setValues([[
+        data.tgl,
+        data.status,
+        data.shalat[0],
+        data.shalat[1],
+        data.shalat[2],
+        data.shalat[3],
+        data.shalat[4],
+        data.gym,
+        data.tidur,
+        data.protein,
+        data.deepwork,
+        data.english,
+        data.buku,
+        data.kas,
+        data.pos,
+        data.rca,
+        data.catatan
+      ]]);
+    }
+
+    return ContentService.createTextOutput(JSON.stringify({ status: "success", message: "Data tersimpan di Sheets" }))
+      .setMimeType(ContentService.MimeType.JSON);
+  } catch (err) {
+    return ContentService.createTextOutput(JSON.stringify({ status: "error", message: err.toString() }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}`;
+
+    function showToast(msg, isSuccess = true) {
+      const toast = document.getElementById("toastNotification");
+      const toastMsg = document.getElementById("toastMsg");
+      const toastIcon = document.getElementById("toastIcon");
+
+      toastMsg.innerText = msg;
+      toastIcon.className = isSuccess ? "fa-solid fa-circle-check text-emerald-400 text-sm" : "fa-solid fa-circle-exclamation text-rose-400 text-sm";
+
+      toast.classList.remove("translate-y-20", "opacity-0");
+      setTimeout(() => {
+        toast.classList.add("translate-y-20", "opacity-0");
+      }, 2800);
+    }
+
+    function toggleModal(modalId, show) {
+      const modal = document.getElementById(modalId);
+      if (show) {
+        modal.classList.remove("hidden");
+        if (modalId === "entryModal" && state.editingActivityIndex === -1) {
+          document.getElementById("inputDate").value = new Date().toISOString().split('T')[0];
+          document.getElementById("btnSubmitQuickEntry").innerHTML = `<i class="fa-solid fa-paper-plane"></i> <span>Simpan & Kirim ke Sheets</span>`;
+        }
+        if (modalId === "masterDataModal") {
+          switchMasterJsonView(state.currentJsonTab);
+        }
+        if (modalId === "setupModal") {
+          document.getElementById("appsScriptTemplate").value = APPS_SCRIPT_SOURCE;
+        }
+      } else {
+        modal.classList.add("hidden");
+        if (modalId === "entryModal") {
+          state.editingActivityIndex = -1;
+          document.getElementById("quickEntryForm").reset();
+        }
+      }
+    }
+
+    function switchSetupTab(tab) {
+      const btnUrl = document.getElementById("tabSetupUrlBtn");
+      const btnScript = document.getElementById("tabSetupScriptBtn");
+      const paneUrl = document.getElementById("setupTabUrl");
+      const paneScript = document.getElementById("setupTabScript");
+
+      if (tab === 'url') {
+        btnUrl.className = "px-3 py-1.5 rounded-lg bg-blue-600 text-white font-semibold flex items-center gap-1.5";
+        btnScript.className = "px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-darkCardLighter text-slate-600 dark:text-slate-300 font-semibold flex items-center gap-1.5";
+        paneUrl.classList.remove("hidden");
+        paneScript.classList.add("hidden");
+      } else {
+        btnScript.className = "px-3 py-1.5 rounded-lg bg-blue-600 text-white font-semibold flex items-center gap-1.5";
+        btnUrl.className = "px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-darkCardLighter text-slate-600 dark:text-slate-300 font-semibold flex items-center gap-1.5";
+        paneUrl.classList.add("hidden");
+        paneScript.classList.remove("hidden");
+      }
+    }
+
+    function copyAppsScriptCode() {
+      const textarea = document.getElementById("appsScriptTemplate");
+      textarea.select();
+      document.execCommand('copy');
+      showToast("Seluruh skrip Code.gs berhasil disalin!");
+    }
+
+    /* ================= 2B. EDIT & DELETE LOGIC ================= */
+    function saveEndpointConfig() {
+      const url = document.getElementById("inputEndpointUrl").value.trim();
+      const sheet = document.getElementById("inputSheetDirectUrl").value.trim();
+      state.endpointUrl = url;
+      state.sheetUrl = sheet || "https://docs.google.com/spreadsheets/";
+
+      localStorage.setItem("gas_endpoint_url", url);
+      localStorage.setItem("sheet_direct_url", state.sheetUrl);
+
+      // Perbarui tombol Buka Sheets di header agar langsung mengarah ke spreadsheet user
+      document.getElementById("sheetLink").href = state.sheetUrl;
+      toggleModal('setupModal', false);
+      showToast("Konfigurasi URL disimpan. Menarik data awal...");
+      if (url) fetchLiveSheetsData();
+    }
+
+    /* ================= 3. GOOGLE APPS SCRIPT SYNC & POST ENGINE ================= */
+    async function fetchLiveSheetsData() {
+      const btn = document.getElementById("btnSync");
+      const statusBadge = document.getElementById("syncStatus");
+
+      if (!state.endpointUrl) {
+        toggleModal('setupModal', true);
+        return;
+      }
+
+      btn.classList.add("opacity-60", "pointer-events-none");
+      btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> <span>Syncing...</span>`;
+
+      try {
+        const response = await fetch(state.endpointUrl);
+        if (!response.ok) throw new Error("Gagal mengambil data dari Google Apps Script.");
+        const data = await response.json();
+
+        let updatedCount = 0;
+        if (data.activities && Array.isArray(data.activities) && data.activities.length > 0) {
+          state.activities = data.activities;
+          localStorage.setItem("dashboard_activities", JSON.stringify(data.activities));
+          updatedCount += data.activities.length;
+        }
+        if (data.budget && Array.isArray(data.budget) && data.budget.length > 0) {
+          state.budget = data.budget;
+          localStorage.setItem("dashboard_budget", JSON.stringify(data.budget));
+        }
+
+        statusBadge.innerHTML = `<span class="h-2 w-2 rounded-full bg-emerald-500"></span><span>Live Synced</span>`;
+        statusBadge.className = "inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-800 shadow-xs";
+        showToast(`Berhasil tersambung! Memuat ${updatedCount} catatan riil.`);
+      } catch (err) {
+        console.warn("Koneksi gagal, fallback ke LocalStorage:", err);
+        statusBadge.innerHTML = `<span class="h-2 w-2 rounded-full bg-amber-500 animate-pulse"></span><span>Offline Fallback</span>`;
+        statusBadge.className = "inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border border-amber-300 dark:border-amber-800 shadow-xs";
+        showToast("Mode Offline: Menggunakan cadangan data lokal", false);
+      } finally {
+        btn.classList.remove("opacity-60", "pointer-events-none");
+        btn.innerHTML = `<i class="fa-solid fa-rotate"></i> <span>Tarik Data Sheets</span>`;
+        refreshDashboardViews();
+      }
+    }
+
+    async function handleQuickEntry(e) {
+      e.preventDefault();
+
+      const newLog = {
+        type: "activity",
+        tgl: document.getElementById("inputDate").value,
+        status: document.getElementById("inputStatus").value,
+        shalat: [
+          document.getElementById("chkSubuh").checked,
+          document.getElementById("chkDzuhur").checked,
+          document.getElementById("chkAshar").checked,
+          document.getElementById("chkMaghrib").checked,
+          document.getElementById("chkIsya").checked
+        ],
+        gym: document.getElementById("inputGym").value === "true",
+        tidur: parseFloat(document.getElementById("inputTidur").value) || 0,
+        protein: parseInt(document.getElementById("inputProtein").value) || 0,
+        deepwork: parseInt(document.getElementById("inputDeepwork").value) || 0,
+        english: parseInt(document.getElementById("inputEnglish").value) || 0,
+        buku: parseInt(document.getElementById("inputBuku").value) || 0,
+        kas: parseInt(document.getElementById("inputKas").value) || 0,
+        pos: document.getElementById("inputPos").value,
+        rca: document.getElementById("inputRCA").value,
+        catatan: document.getElementById("inputCatatan").value || "-"
+      };
+
+      // 1. Simpan Instan ke State & LocalStorage (Responsif & Offline-Safe)
+      if (state.editingActivityIndex >= 0) {
+        state.activities[state.editingActivityIndex] = newLog;
+        showToast(`Log tanggal ${newLog.tgl} berhasil direvisi.`);
+        state.editingActivityIndex = -1;
+      } else {
+        state.activities.unshift(newLog);
+        showToast(`Log tanggal ${newLog.tgl} tersimpan ke dashboard.`);
+      }
+
+      localStorage.setItem("dashboard_activities", JSON.stringify(state.activities));
+      toggleModal('entryModal', false);
+      refreshDashboardViews();
+
+      // 2. Kirim otomatis ke Google Sheets via POST jika endpoint tersedia
+      if (state.endpointUrl) {
+        try {
+          fetch(state.endpointUrl, {
+            method: "POST",
+            mode: "no-cors", // Standar Apps Script Web App bypass CORS
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(newLog)
+          }).then(() => {
+            showToast(`Log tanggal ${newLog.tgl} sukses disinkronkan ke Google Sheets!`);
+          }).catch(err => {
+            console.warn("Gagal auto-sync ke sheets:", err);
+          });
+        } catch (err) {
+          console.warn("Gagal POST ke Google Sheets:", err);
+        }
+      }
+    }
+
+    /* ================= 4. DATA PROCESSING & VIEWS ================= */
+    function refreshDashboardViews() {
+      renderActivityKPIs();
+      renderActivityTable();
+      renderAIInsight();
+      renderBudgetKPIs();
+      renderBudgetTable();
+      renderAllCharts();
+    }
+
+    function applyActivityFilters() {
+      const statusFilter = document.getElementById("filterStatusKerja").value;
+      const kendalaFilter = document.getElementById("filterKendala").value;
+
+      let filtered = state.activities.filter(item => {
+        const matchStatus = (statusFilter === "Semua") || (item.status === statusFilter);
+        const matchKendala = (kendalaFilter === "Semua") || (item.rca === kendalaFilter);
+        return matchStatus && matchKendala;
+      });
+
+      renderActivityTable(filtered);
+      renderAllCharts(filtered);
+    }
+
+    function resetActivityFilters() {
+      document.getElementById("filterStatusKerja").value = "Semua";
+      document.getElementById("filterKendala").value = "Semua";
+      applyActivityFilters();
+    }
+
+    function renderActivityKPIs() {
+      const data = state.activities;
+      if (!data.length) return;
+
+      // 1. Shalat %
+      let totalShalat = 0;
+      data.forEach(d => totalShalat += d.shalat.filter(Boolean).length);
+      const shalatPct = Math.round((totalShalat / (data.length * 5)) * 100);
+      document.getElementById("kpiShalat").innerText = `${shalatPct}%`;
+
+      // 2. Gym Freq
+      const gymCount = data.filter(d => d.gym).length;
+      document.getElementById("kpiGym").innerText = `${gymCount} / 4x`;
+
+      // 3. Deep Work Total
+      const totalDeepMins = data.reduce((acc, cur) => acc + (cur.deepwork || 0), 0);
+      const deepHours = (totalDeepMins / 60).toFixed(1);
+      document.getElementById("kpiDeepWork").innerText = `${deepHours} Jam`;
+
+      // 4. Avg Sleep
+      const totalSleep = data.reduce((acc, cur) => acc + (cur.tidur || 0), 0);
+      const avgSleep = (totalSleep / data.length).toFixed(1);
+      document.getElementById("kpiSleep").innerText = `${avgSleep} Jam`;
+    }
+
+    function renderActivityTable(records = state.activities) {
+      const tbody = document.getElementById("tableActivityBody");
+      tbody.innerHTML = "";
+
+      records.forEach((row, idx) => {
+        // Cari index asli di state.activities untuk akurasi edit/delete saat difilter
+        const originalIndex = state.activities.indexOf(row);
+
+        const shalatBadges = row.shalat.map((done, i) => {
+          const names = ['S', 'D', 'A', 'M', 'I'];
+          return `<span class="inline-block px-1.5 py-0.5 rounded text-[10px] font-bold ${done ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300' : 'bg-rose-100 text-rose-800 dark:bg-rose-900/60 dark:text-rose-300'}">${names[i]}</span>`;
+        }).join(" ");
+
+        const gymBadge = row.gym 
+          ? `<span class="text-emerald-500 font-bold"><i class="fa-solid fa-check"></i></span>`
+          : `<span class="text-slate-400">-</span>`;
+
+        const tr = document.createElement("tr");
+        tr.className = "hover:bg-slate-50/50 dark:hover:bg-darkCardLighter/40 transition group";
+        tr.innerHTML = `
+          <td class="p-3 font-semibold whitespace-nowrap">${row.tgl}</td>
+          <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-semibold ${row.status === 'Lembur' ? 'bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300' : row.status === 'Libur' ? 'bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300' : 'bg-slate-100 dark:bg-darkCardLighter text-slate-700 dark:text-slate-300'}">${row.status}</span></td>
+          <td class="p-3 text-center whitespace-nowrap">${shalatBadges}</td>
+          <td class="p-3 text-center">${gymBadge}</td>
+          <td class="p-3 font-semibold ${row.tidur < 6.5 ? 'text-amber-500' : 'text-slate-700 dark:text-slate-300'}">${row.tidur}j</td>
+          <td class="p-3">${row.protein}g</td>
+          <td class="p-3 text-cyan-600 dark:text-cyan-400 font-bold">${row.deepwork}m</td>
+          <td class="p-3 text-blue-600 dark:text-blue-400 font-semibold">${row.english}m</td>
+          <td class="p-3">${row.buku}</td>
+          <td class="p-3 font-mono font-bold ${row.kas > 55000 ? 'text-rose-500' : 'text-slate-700 dark:text-slate-300'}">Rp${row.kas.toLocaleString('id-ID')}</td>
+          <td class="p-3 text-slate-500 dark:text-slate-400 whitespace-nowrap">${row.pos || 'BCA Operasional'}</td>
+          <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-semibold ${row.rca === 'Lembur/Pabrik' ? 'bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300' : row.rca === 'Kelelahan' ? 'bg-rose-100 dark:bg-rose-900/40 text-rose-700 dark:text-rose-300' : row.rca === 'Distraksi Pribadi' ? 'bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300' : 'bg-slate-100 dark:bg-darkCardLighter text-slate-500'}">${row.rca}</span></td>
+          <td class="p-3 text-center whitespace-nowrap">
+            <button onclick="editActivity(${originalIndex})" class="p-1 px-2 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded transition mr-1" title="Koreksi / Edit Data Ini">
+              <i class="fa-solid fa-pen-to-square"></i>
+            </button>
+            <button onclick="deleteActivity(${originalIndex})" class="p-1 px-2 text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/30 rounded transition" title="Hapus Data Ini">
+              <i class="fa-regular fa-trash-can"></i>
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderAIInsight() {
+      const records = state.activities;
+      const lemburCount = records.filter(r => r.rca === "Lembur/Pabrik").length;
+      const lelahCount = records.filter(r => r.rca === "Kelelahan").length;
+      const pribadiCount = records.filter(r => r.rca === "Distraksi Pribadi").length;
+
+      let msg = "";
+      if (lemburCount > 0) {
+        msg = `<strong>Faktor Operasional Terdeteksi:</strong> Ditemukan <b>${lemburCount} kendala</b> akibat breakdown lini/lembur pabrik. Hal ini adalah <em>variansi operasional yang sah</em>. <strong>Rekomendasi:</strong> Jangan memaksakan sesi Deep Work larut malam saat lembur terjadi. Alihkan beban kompensasi simulasi Node-RED & SCADA ke akhir pekan, dan lindungi waktu tidur minimal 6.5 jam.`;
+      } else if (pribadiCount > 1) {
+        msg = `<strong>Audit Disiplin Mandiri:</strong> Terdapat <b>${pribadiCount} catatan distraksi pribadi</b> yang memicu lonjakan kas melebihi batas aman harian Rp55.000. <strong>Rekomendasi:</strong> Kunci notifikasi Google Tasks pada pukul 21:15 WIB dan terapkan pemadaman layar gawai secara ketat mulai 21:30 WIB.`;
+      } else {
+        msg = `<strong>Performa Optimal:</strong> Ritme non-shift 08:00–16:00 berjalan sangat seimbang. Disiplin shalat 5 waktu dan frekuensi gym berada pada tren target. Lanjutkan penguatan deep work teknis di blok 20:00–21:15 WIB untuk persiapan lompatan karier berikutnya.`;
+      }
+      document.getElementById("aiInsightText").innerHTML = msg;
+    }
+
+    function renderBudgetKPIs() {
+      const budget = state.budget;
+      const current = budget[budget.length - 1] || {};
+
+      document.getElementById("kpiKasOps").innerText = `Rp${(current.sisaKas || 0).toLocaleString('id-ID')}`;
+      
+      // Hitung Tabungan Nikah akumulatif
+      const totalNikah = budget.filter(b => b.nikah).length * 1875000;
+      document.getElementById("kpiNikahTotal").innerText = `Rp${totalNikah.toLocaleString('id-ID')}`;
+      document.getElementById("nikahCurrentVal").innerText = `Rp${totalNikah.toLocaleString('id-ID')}`;
+
+      // Progress Tabungan Nikah
+      const pct = Math.min(100, Math.round((totalNikah / 45000000) * 100));
+      document.getElementById("nikahProgressBar").style.width = `${pct}%`;
+      document.getElementById("nikahProgressPct").innerText = `${pct}% Tercapai`;
+
+      // Skill & Investasi
+      const totalSkillInvest = budget.filter(b => b.skill && b.bibit).length * 1675000;
+      document.getElementById("kpiSkillInvest").innerText = `Rp${totalSkillInvest.toLocaleString('id-ID')}`;
+
+      // Dana Darurat
+      const totalDarurat = budget.reduce((acc, cur) => acc + (cur.tarikDarurat || 0), 0);
+      document.getElementById("kpiDanaDarurat").innerText = `Rp${totalDarurat.toLocaleString('id-ID')}`;
+      if (totalDarurat > 0) {
+        document.getElementById("kpiDaruratStatus").innerText = `Terpakai: Rp${totalDarurat.toLocaleString('id-ID')}`;
+        document.getElementById("kpiDaruratStatus").className = "text-[11px] text-amber-500 font-bold";
+      } else {
+        document.getElementById("kpiDaruratStatus").innerText = "Disiplin Sempurna (Rp0)";
+        document.getElementById("kpiDaruratStatus").className = "text-[11px] text-emerald-500 font-semibold";
+      }
+    }
+
+    function renderBudgetTable() {
+      const tbody = document.getElementById("tableBudgetBody");
+      tbody.innerHTML = "";
+
+      state.budget.forEach((row, idx) => {
+        const checkIcon = (val) => val 
+          ? `<span class="text-emerald-500"><i class="fa-solid fa-circle-check"></i></span>`
+          : `<span class="text-rose-500"><i class="fa-solid fa-circle-xmark"></i></span>`;
+
+        const tr = document.createElement("tr");
+        tr.className = "hover:bg-slate-50/50 dark:hover:bg-darkCardLighter/40 transition group";
+        tr.innerHTML = `
+          <td class="p-3 font-bold">${row.bulan}</td>
+          <td class="p-3 font-mono font-semibold">Rp${row.gaji.toLocaleString('id-ID')}</td>
+          <td class="p-3 text-center">${checkIcon(row.kos)}</td>
+          <td class="p-3 text-center">${checkIcon(row.opsAman)}</td>
+          <td class="p-3 text-center">${checkIcon(row.jago)}</td>
+          <td class="p-3 text-center">${checkIcon(row.nikah)}</td>
+          <td class="p-3 text-center">${checkIcon(row.skill)}</td>
+          <td class="p-3 text-center">${checkIcon(row.bibit)}</td>
+          <td class="p-3 font-mono font-bold text-amber-600 dark:text-amber-400">Rp${row.sisaKas.toLocaleString('id-ID')}</td>
+          <td class="p-3 font-mono ${row.tarikDarurat > 0 ? 'text-rose-500 font-bold' : 'text-slate-400'}">Rp${row.tarikDarurat.toLocaleString('id-ID')}</td>
+          <td class="p-3 text-slate-500 dark:text-slate-400 text-[11px]">${row.catatan}</td>
+          <td class="p-3 text-center whitespace-nowrap">
+            <button onclick="editBudget(${idx})" class="p-1 px-2 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded transition mr-1" title="Edit Catatan Budget">
+              <i class="fa-solid fa-pen-to-square"></i>
+            </button>
+            <button onclick="deleteBudget(${idx})" class="p-1 px-2 text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/30 rounded transition" title="Hapus Periode Ini">
+              <i class="fa-regular fa-trash-can"></i>
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    /* ================= 5. CHART ENGINE (CHART.JS) ================= */
+    function destroyChart(name) {
+      if (state.charts[name]) {
+        state.charts[name].destroy();
+        delete state.charts[name];
+      }
+    }
+
+    function renderAllCharts(activityData = state.activities) {
+      const isDark = document.documentElement.classList.contains("dark");
+      const gridColor = isDark ? "rgba(51, 65, 85, 0.4)" : "rgba(226, 232, 240, 0.8)";
+      const textColor = isDark ? "#94a3b8" : "#64748b";
+
+      // 1. CHART PRODUKTIVITAS (Bar Chart)
+      destroyChart("productivity");
+      const ctxProd = document.getElementById("chartProductivity").getContext("2d");
+      state.charts["productivity"] = new Chart(ctxProd, {
+        type: "bar",
+        data: {
+          labels: activityData.map(d => d.tgl.slice(5)),
+          datasets: [
+            {
+              label: "Deep Work Otomasi (menit)",
+              data: activityData.map(d => d.deepwork),
+              backgroundColor: "#06b6d4",
+              borderRadius: 4
+            },
+            {
+              label: "English Reading (menit)",
+              data: activityData.map(d => d.english),
+              backgroundColor: "#3b82f6",
+              borderRadius: 4
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: { grid: { color: gridColor }, ticks: { color: textColor, font: { size: 10 } } },
+            y: { grid: { color: gridColor }, ticks: { color: textColor, font: { size: 10 } } }
+          },
+          plugins: {
+            legend: { labels: { color: textColor, boxWidth: 12, font: { size: 11 } } }
+          }
+        }
+      });
+
+      // 2. CHART RCA (Doughnut Chart)
+      destroyChart("rca");
+      const rcaCounts = { "Lembur/Pabrik": 0, "Kelelahan": 0, "Distraksi Pribadi": 0, "Nihil": 0 };
+      activityData.forEach(d => { if (rcaCounts[d.rca] !== undefined) rcaCounts[d.rca]++; });
+
+      const ctxRCA = document.getElementById("chartRCA").getContext("2d");
+      state.charts["rca"] = new Chart(ctxRCA, {
+        type: "doughnut",
+        data: {
+          labels: Object.keys(rcaCounts),
+          datasets: [{
+            data: Object.values(rcaCounts),
+            backgroundColor: ["#6366f1", "#f43f5e", "#f59e0b", "#10b981"],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'bottom', labels: { color: textColor, boxWidth: 10, font: { size: 10 } } }
+          }
+        }
+      });
+
+      // 3. CHART TIDUR (Line Chart)
+      destroyChart("sleep");
+      const ctxSleep = document.getElementById("chartSleep").getContext("2d");
+      state.charts["sleep"] = new Chart(ctxSleep, {
+        type: "line",
+        data: {
+          labels: activityData.map(d => d.tgl.slice(5)),
+          datasets: [
+            {
+              label: "Durasi Tidur (Jam)",
+              data: activityData.map(d => d.tidur),
+              borderColor: "#818cf8",
+              backgroundColor: "rgba(129, 140, 248, 0.15)",
+              borderWidth: 2.5,
+              fill: true,
+              tension: 0.35,
+              pointRadius: 4
+            },
+            {
+              label: "Batas Koridor Bawah (6.5 Jam)",
+              data: activityData.map(() => 6.5),
+              borderColor: "#10b981",
+              borderDash: [4, 4],
+              borderWidth: 1.5,
+              pointRadius: 0,
+              fill: false
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: { grid: { color: gridColor }, ticks: { color: textColor, font: { size: 10 } } },
+            y: { min: 4, max: 9, grid: { color: gridColor }, ticks: { color: textColor, font: { size: 10 } } }
+          },
+          plugins: {
+            legend: { labels: { color: textColor, boxWidth: 12, font: { size: 11 } } }
+          }
+        }
+      });
+
+      // 4. CHART BUDGET ALLOCATION (Doughnut Chart)
+      destroyChart("budget");
+      const ctxBudget = document.getElementById("chartBudgetAllocation").getContext("2d");
+      state.charts["budget"] = new Chart(ctxBudget, {
+        type: "doughnut",
+        data: {
+          labels: ["Operasional Tetap (40.8%)", "Tabungan Nikah (31.3%)", "Skill & Alat (11.7%)", "Investasi Portofolio (16.2%)"],
+          datasets: [{
+            data: [2450000, 1875000, 700000, 975000],
+            backgroundColor: ["#f59e0b", "#10b981", "#06b6d4", "#8b5cf6"],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'bottom', labels: { color: textColor, boxWidth: 10, font: { size: 10 } } }
+          }
+        }
+      });
+
+      // 5. CHART DAILY EXPENSES (Bar Chart)
+      destroyChart("expenses");
+      const ctxExp = document.getElementById("chartDailyExpenses").getContext("2d");
+      state.charts["expenses"] = new Chart(ctxExp, {
+        type: "bar",
+        data: {
+          labels: activityData.map(d => d.tgl.slice(5)),
+          datasets: [
+            {
+              label: "Pengeluaran Kas (Rp)",
+              data: activityData.map(d => d.kas),
+              backgroundColor: activityData.map(d => d.kas > 55000 ? "#f43f5e" : "#3b82f6"),
+              borderRadius: 4
+            },
+            {
+              type: "line",
+              label: "Batas Aman Rp55.000/hari",
+              data: activityData.map(() => 55000),
+              borderColor: "#ef4444",
+              borderDash: [5, 5],
+              borderWidth: 1.5,
+              pointRadius: 0
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: { grid: { color: gridColor }, ticks: { color: textColor, font: { size: 10 } } },
+            y: { grid: { color: gridColor }, ticks: { color: textColor, font: { size: 10 } } }
+          },
+          plugins: {
+            legend: { labels: { color: textColor, boxWidth: 12, font: { size: 11 } } }
+          }
+        }
+      });
+    }
+
+    /* ================= 6. BOOTSTRAP INITIALIZATION ================= */
+    document.addEventListener("DOMContentLoaded", () => {
+      // Check Dark Mode
+      const savedTheme = localStorage.getItem("theme");
+      if (savedTheme === "light") {
+        document.documentElement.classList.remove("dark");
+        document.getElementById("themeIcon").className = "fa-solid fa-moon";
+      }
+
+      // Sync form input fields with state
+      document.getElementById("inputEndpointUrl").value = state.endpointUrl;
+      document.getElementById("inputSheetDirectUrl").value = state.sheetUrl;
+      document.getElementById("sheetLink").href = state.sheetUrl;
+
+      // Render dashboard visual elements
+      refreshDashboardViews();
+
+      // Auto live-sync if endpoint is already configured
+      if (state.endpointUrl) {
+        fetchLiveSheetsData();
+      }
+    });
+  </script>
+</body>
+</html>
